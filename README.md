@@ -1,4 +1,4 @@
-# amba-tlm-1.0
+# amba-tlm-2.0
 
 cd $path/lib/
 

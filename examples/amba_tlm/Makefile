@@ -10,7 +10,7 @@ SYSTEMC_FLAGS = -pthread -fpermissive -DSC_INCLUDE_DYNAMIC_PROCESSES
 AMBA_TLM_HOME = ../..
 
 SYSTEMC_INC = /usr/local/systemc-2.3.3
-TLM_INC = /usr/include
+TLM_INC = /usr/local/systemc-2.3.3/include
 SYSTEMC_LIB = /usr/local/systemc-2.3.3/lib-linux64
 SYSTEMC_LIB_FILE = -lsystemc
 
@@ -45,3 +45,4 @@ TransactorExample: Monitor.o Memory.o TrafficGenerator.o Transactors.o Transacto
 clean:
 	rm -f *.o
 	rm -f TrafficExample
+	rm -f TransactorExample

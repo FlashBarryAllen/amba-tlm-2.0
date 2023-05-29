@@ -13,11 +13,14 @@ add_executable(TrafficExample
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-target_link_libraries(TrafficExample PUBLIC systemc)  
+target_link_libraries(TrafficExample PUBLIC systemc)
+target_link_directories(TrafficExample PUBLIC 
+                        "/usr/local/systemc-2.3.3/lib-linux64")
 
 target_include_directories(TrafficExample PUBLIC
                           "${CMAKE_SOURCE_DIR}/examples/amba_tlm/"
                           "${CMAKE_SOURCE_DIR}/include/"
+                          "/usr/local/systemc-2.3.3/include"
                           )
 
-target_compile_options(TrafficExample PRIVATE "-g")                          
+target_compile_options(TrafficExample PRIVATE "-g")

@@ -39,9 +39,7 @@
 #include "arm_axi4_payload.h"
 #include "arm_axi4_phase.h"
 #include "arm_tlm_socket.h"
-#include "utilities.h"
-#include "tlm_utils/simple_initiator_socket.h"
-#include "tlm_utils/simple_target_socket.h"
+
 namespace ARM
 {
 namespace AXI4
@@ -57,20 +55,7 @@ public:
     typedef Payload tlm_payload_type;
     typedef Phase tlm_phase_type;
 };
-/*
-template <typename Module, typename Types = ProtocolType>
-class MultiMasterSockets : tlm_utils::multi_passthrough_target_socket<Module, Types>
-{
-private:
-    typedef typename ARM::TLM::MultiMasterSockets<Module, Types> BaseType;
-public:
-    MultiMasterSockets(const char* name_, Module& t,
-        typename BaseType::NBFunc bw,
-        TLM::Portocol protocol_, unsigned width_) :
-        TLM::MultiMasterSocekt <Module, Types>(name_, t, bw, protocol_, width_) 
-    {}
-};
-*/
+
 /** ARM::TLM::SimpleMasterSocket specialised for AXI4 payloads/phases. */
 template <typename Module, typename Types = ProtocolType>
 class SimpleMasterSocket : public ARM::TLM::SimpleMasterSocket <Module, Types>

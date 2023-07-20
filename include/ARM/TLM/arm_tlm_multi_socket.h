@@ -40,7 +40,7 @@ public:
 
 /** Base master socket implementing protocol/width checking. */
 template <typename Types>
-class BaseMasterMultiSockets : public tlm::multi_passthrough_target_socket<Types>
+class BaseMasterMultiSockets : public tlm::multi_passthrough_initiator_socket<Types>
 {
 public:
     /* Protocol to test against other sockets when binding. */
@@ -52,7 +52,7 @@ public:
 public:
     BaseMasterMultiSockets(const char* name_,
         Protocol protocol_, unsigned port_width_) :
-        tlm::multi_passthrough_target_socket<Types>(name_),
+        tlm::multi_passthrough_initiator_socket<Types>(name_),
         protocol(protocol_),
         port_width(port_width_)
     {}
@@ -74,6 +74,57 @@ public:
     /** Non blocking transport function pointer. */
     typedef tlm::tlm_sync_enum (Module::* NBFunc)(int, PayloadType&, PhaseType&);
 
+    /** Debug transport function pointer. */
+    typedef unsigned (Module::* DebugFunc)(PayloadType&);
+
+protected:
+    /** Proxy object implementing the fw transport interface. */
+    class Proxy : public tlm::tlm_fw_transport_if<Types>
+    {
+    public:
+        /** Owner of the proxy. */
+        const SlaveMultiSockets<Module, Types>& owner;
+
+        /** Object and functions to which to defer interface calls. */
+        Module& t;
+        NBFunc fw;
+        DebugFunc dbg;
+
+        Proxy(const SlaveMultiSockets<Module, Types>& owner_,
+            Module& t_, NBFunc fw_, DebugFunc dbg_) :
+            owner(owner_), t(t_), fw(fw_), dbg(dbg_)
+        {}
+
+        tlm::tlm_sync_enum nb_transport_fw(int id, PayloadType& trans,
+            PhaseType& phase, sc_core::sc_time& delay)
+        {
+            return (t.*fw)(trans, phase);
+        }
+
+        void b_transport(int id, PayloadType& trans, sc_core::sc_time& delay)
+        {
+            std::ostringstream message;
+            message << owner.name() << ": b_transport not implemented";
+            SC_REPORT_ERROR("/ARM/TLM/SimpleSlaveSocket",
+                message.str().c_str());
+        }
+
+        unsigned transport_dbg(PayloadType& trans)
+        {
+            if (dbg)
+                return (t.*dbg)(trans);
+            else
+                return 0;
+        }
+
+        bool get_direct_mem_ptr(PayloadType&, tlm::tlm_dmi&)
+        {
+            return false;
+        }
+    };
+
+    Proxy proxy;
+
 public:
     SlaveMultiSockets(const char* name_, Module& t, NBFunc fw,
         Protocol protocol_, unsigned port_width_, DebugFunc dbg = NULL) :
@@ -84,11 +135,12 @@ public:
     }
 
     /** Convenience function for bw without time. */
-    tlm::tlm_sync_enum nb_transport_bw(inti id, PayloadType& trans, PhaseType& phase)
+    tlm::tlm_sync_enum nb_transport_bw(int id, PayloadType& trans, PhaseType& phase)
     {
         sc_core::sc_time delay = sc_core::SC_ZERO_TIME;
-        return (*this)->nb_transport_bw(id, trans, phase, delay);
+        return (*this)->nb_transport_bw(trans, phase, delay);
     }
+
 };
 
 /**
@@ -97,7 +149,7 @@ public:
  * same way at tlm_utils::simple_initiator_socket.
  */
 template <typename Module, typename Types>
-class SimpleMasterSocket : public BaseMasterSocket<Types>
+class MasterMultiSockets : public BaseMasterMultiSockets<Types>
 {
 protected:
     typedef typename Types::tlm_payload_type PayloadType;
@@ -113,13 +165,13 @@ protected:
     {
     public:
         /** Owner of the proxy. */
-        const SimpleMasterSocket<Module, Types>& owner;
+        const MasterMultiSockets<Module, Types>& owner;
 
         /** Object and function(s) to which to defer interface calls. */
         Module& t;
         NBFunc bw;
 
-        Proxy(const SimpleMasterSocket<Module, Types>& owner_,
+        Proxy(const MasterMultiSockets<Module, Types>& owner_,
             Module& t_, NBFunc bw_) :
             owner(owner_), t(t_), bw(bw_)
         {}
@@ -142,12 +194,12 @@ protected:
     Proxy proxy;
 
 public:
-    SimpleMasterSocket(const char* name_, Module& t, NBFunc bw,
+    MasterMultiSockets(const char* name_, Module& t, NBFunc bw,
         Protocol protocol_, unsigned port_width_) :
-        BaseMasterSocket<Types>(name_, protocol_, port_width_),
+        BaseMasterMultiSockets<Types>(name_, protocol_, port_width_),
         proxy(*this, t, bw)
     {
-        tlm::tlm_initiator_socket<0, Types>::bind(proxy);
+        tlm::multi_passthrough_initiator_socket<Types>::bind(proxy);
     }
 
     /** Convenience function for fw without time. */

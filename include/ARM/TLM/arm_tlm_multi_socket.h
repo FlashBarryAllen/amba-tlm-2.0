@@ -20,7 +20,7 @@ class BaseMasterMultiSockets;
 
 /* Base slave socket implementing protocol/width checking. */
 template <typename Types>
-class BaseSlaveMultiSockets : public tlm::multi_passthrough_target_socket<Types>
+class BaseSlaveMultiSockets : public tlm_utils::multi_passthrough_target_socket<Types>
 {
 public:
     /* Protocol to test against other sockets when binding. */
@@ -32,7 +32,7 @@ public:
 public:
     BaseSlaveMultiSockets(const char* name_,
         Protocol protocol_, unsigned port_width_) :
-        tlm::multi_passthrough_target_socket<Types>(name_),
+        tlm_utils::multi_passthrough_target_socket<Types>(name_),
         protocol(protocol_),
         port_width(port_width_)
     {}
@@ -40,7 +40,7 @@ public:
 
 /** Base master socket implementing protocol/width checking. */
 template <typename Types>
-class BaseMasterMultiSockets : public tlm::multi_passthrough_initiator_socket<Types>
+class BaseMasterMultiSockets : public tlm_utils::multi_passthrough_initiator_socket<Types>
 {
 public:
     /* Protocol to test against other sockets when binding. */
@@ -52,7 +52,7 @@ public:
 public:
     BaseMasterMultiSockets(const char* name_,
         Protocol protocol_, unsigned port_width_) :
-        tlm::multi_passthrough_initiator_socket<Types>(name_),
+        tlm_utils::multi_passthrough_initiator_socket<Types>(name_),
         protocol(protocol_),
         port_width(port_width_)
     {}
@@ -199,7 +199,7 @@ public:
         BaseMasterMultiSockets<Types>(name_, protocol_, port_width_),
         proxy(*this, t, bw)
     {
-        tlm::multi_passthrough_initiator_socket<Types>::bind(proxy);
+        tlm_utils::multi_passthrough_initiator_socket<Types>::bind(proxy);
     }
 
     /** Convenience function for fw without time. */

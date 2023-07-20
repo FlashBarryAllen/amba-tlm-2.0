@@ -14,7 +14,7 @@ namespace AXI4
  * Payload and Phase grouped for use with socket templates in a similar
  * way to tlm::tlm_base_protocol_types.
  */
-class ProtocolType
+class MyProtocolType
 {
 public:
     typedef Payload tlm_payload_type;
@@ -22,7 +22,7 @@ public:
 };
 
 /** ARM::TLM::MasterMultiSockets specialised for AXI4 payloads/phases. */
-template <typename Module, typename Types = ProtocolType>
+template <typename Module, typename Types = MyProtocolType>
 class MasterMultiSockets : public ARM::TLM::MasterMultiSockets <Module, Types>
 {
 private:
@@ -37,7 +37,7 @@ public:
 };
 
 /** ARM::TLM::SlaveMultiSockets specialised for AXI4 payloads/phases. */
-template <typename Module, typename Types = ProtocolType>
+template <typename Module, typename Types = MyProtocolType>
 class SlaveMultiSockets : public ARM::TLM::SlaveMultiSockets <Module, Types>
 {
 private:

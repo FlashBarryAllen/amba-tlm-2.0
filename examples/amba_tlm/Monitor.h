@@ -15,6 +15,7 @@ protected:
 
     /* Map of burst counts for observed Payloads. */
     std::map<ARM::AXI4::Payload*, unsigned> payload_burst_index;
+    std::map<ARM::AXI4::Payload*, unsigned> m_id_map;
 
     tlm::tlm_sync_enum nb_transport_fw(ARM::AXI4::Payload& payload,
         ARM::AXI4::Phase& phase);
@@ -29,8 +30,8 @@ public:
     Monitor(sc_core::sc_module_name name, unsigned port_width = 128);
     ~Monitor();
 
-    ARM::AXI4::SimpleSlaveSocket<Monitor> slave;
-    ARM::AXI4::SimpleMasterSocket<Monitor> master;
+    std::array<ARM::AXI4::SimpleSlaveSocket<Monitor>*, 2> slave;
+    std::array<ARM::AXI4::SimpleMasterSocket<Monitor>*, 2> master;
 };
 
 #endif // ARM_MONITOR_H

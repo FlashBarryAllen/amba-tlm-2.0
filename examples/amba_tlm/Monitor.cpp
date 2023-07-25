@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-
+#include <memory>
 #include "Monitor.h"
 
 using namespace std;
@@ -12,8 +12,11 @@ using namespace ARM::AXI4;
 
 tlm_sync_enum Monitor::nb_transport_fw(Payload& payload, Phase& phase)
 {
+    auto id = payload.get_address() & 0x0;
+    std::cout << "id : " << id << std::endl;
+    m_id_map[&payload] = id;
     Phase prev_phase = phase;
-    tlm_sync_enum reply = master.nb_transport_fw(payload, phase);
+    tlm_sync_enum reply = (*master[id]).nb_transport_fw(payload, phase);
 
     print_payload(payload, prev_phase, reply, phase);
 
@@ -23,7 +26,8 @@ tlm_sync_enum Monitor::nb_transport_fw(Payload& payload, Phase& phase)
 tlm_sync_enum Monitor::nb_transport_bw(Payload& payload, Phase& phase)
 {
     Phase prev_phase = phase;
-    tlm_sync_enum reply = slave.nb_transport_bw(payload, phase);
+    std::cout << "m_id_map : " << m_id_map[&payload] <<  std::endl;
+    tlm_sync_enum reply = (*slave[m_id_map[&payload]]).nb_transport_bw(payload, phase);
 
     print_payload(payload, prev_phase, reply, phase);
 
@@ -237,15 +241,24 @@ void Monitor::print_payload(Payload& payload, Phase phase,
 
 Monitor::Monitor(sc_module_name name, unsigned port_width) :
     sc_module(name),
-    beat_data(new uint8_t[port_width >> 3]),
-    slave("slave", *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
-        port_width),
-    master("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
-        port_width)
-{}
+    beat_data(new uint8_t[port_width >> 3])
+{
+    slave[0] = new ARM::AXI4::SimpleSlaveSocket<Monitor>("slave", *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
+        port_width);
+    slave[1] = new ARM::AXI4::SimpleSlaveSocket<Monitor>("slave1", *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
+        port_width);
+    master[0] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
+        port_width);
+    master[1] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
+        port_width);
+}
 
 Monitor::~Monitor()
 {
     delete[] beat_data;
+    delete slave[0];
+    delete master[0];
+    delete slave[1];
+    delete master[1];
 }
 

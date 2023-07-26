@@ -12,11 +12,14 @@ using namespace ARM::AXI4;
 
 tlm_sync_enum Monitor::nb_transport_fw(Payload& payload, Phase& phase)
 {
-    auto id = payload.get_address() & 0x0;
-    std::cout << "id : " << id << std::endl;
+    auto id = payload.get_id();
     m_id_map[&payload] = id;
+    std::cout << "id : " << id << std::endl;
+
+    auto target_id = payload.get_address() & 0x1;
+    std::cout << "target_id : " << target_id << std::endl;
     Phase prev_phase = phase;
-    tlm_sync_enum reply = (*master[id]).nb_transport_fw(payload, phase);
+    tlm_sync_enum reply = (*master[target_id]).nb_transport_fw(payload, phase);
 
     print_payload(payload, prev_phase, reply, phase);
 
@@ -249,7 +252,7 @@ Monitor::Monitor(sc_module_name name, unsigned port_width) :
         port_width);
     master[0] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
         port_width);
-    master[1] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
+    master[1] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master1", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
         port_width);
 }
 

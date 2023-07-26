@@ -216,10 +216,11 @@ TrafficGenerator::TrafficGenerator(sc_core::sc_module_name name) :
     dont_initialize();
 }
 
-void TrafficGenerator::add_payload(Command command, uint64_t address, Size size,
+void TrafficGenerator::add_payload(int id, Command command, uint64_t address, Size size,
     uint8_t len, Burst burst)
 {
     Payload* payload = Payload::new_payload(command, address, size, len, burst);
+    payload->set_id(id);
 
     payload->cache = CacheBitEnum() | CACHE_AW_B;
 

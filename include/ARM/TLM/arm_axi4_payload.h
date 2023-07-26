@@ -543,7 +543,9 @@ public:
      * objects).
      */
     void set_address(uint64_t new_address);
-
+    
+    uint32_t get_id() const;
+    void set_id(uint32_t new_id);
     /**
      * Get the address of the lowest address beat in this transaction ignoring
      * any wrapping.

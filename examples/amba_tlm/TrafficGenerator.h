@@ -49,7 +49,7 @@ public:
     TrafficGenerator(sc_core::sc_module_name name);
 
     /* Add a payload to the traffic queue. */
-    void add_payload(ARM::AXI4::Command command, uint64_t address,
+    void add_payload(int id, ARM::AXI4::Command command, uint64_t address,
         ARM::AXI4::Size size, uint8_t len, ARM::AXI4::Burst burst =
         ARM::AXI4::BURST_INCR);
 

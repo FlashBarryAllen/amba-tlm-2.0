@@ -22,8 +22,8 @@ void add_payloads_to_tg(TrafficGenerator& tg)
     //tg.add_payload(COMMAND_WRITE, 0x00002000, SIZE_16, 3);
     //tg.add_payload(COMMAND_READ,  0x00006000, SIZE_16, 3);
     //tg.add_payload(COMMAND_WRITE, 0x00001000, SIZE_16, 3);
-    tg.add_payload(COMMAND_WRITE, 0x00001000, SIZE_8, 4);
-    tg.add_payload(COMMAND_WRITE, 0x00002000, SIZE_8, 4);
+    tg.add_payload(0, COMMAND_WRITE, 0x00000001, SIZE_8, 0);
+    tg.add_payload(0, COMMAND_WRITE, 0x00000000, SIZE_8, 4);
 }
 
 void add_payloads_to_tg1(TrafficGenerator& tg)
@@ -40,8 +40,8 @@ void add_payloads_to_tg1(TrafficGenerator& tg)
     //tg.add_payload(COMMAND_WRITE, 0x00002000, SIZE_16, 3);
     //tg.add_payload(COMMAND_READ,  0x00006000, SIZE_16, 3);
     //tg.add_payload(COMMAND_WRITE, 0x00001000, SIZE_16, 3);
-    tg.add_payload(COMMAND_WRITE, 0x00003000, SIZE_8, 4);
-    tg.add_payload(COMMAND_WRITE, 0x00004000, SIZE_8, 4);
+    tg.add_payload(1, COMMAND_WRITE, 0x0000000, SIZE_8, 4);
+    tg.add_payload(1, COMMAND_WRITE, 0x00000001, SIZE_8, 4);
 }
 
 int sc_main(int argc, char* argv[])

@@ -601,6 +601,16 @@ ARM_TLM_EXPORT void Payload::set_address(uint64_t new_address)
     address = new_address;
 }
 
+ARM_TLM_EXPORT uint32_t Payload::get_id() const
+{
+    return id;
+}
+
+ARM_TLM_EXPORT void Payload::set_id(uint32_t new_id)
+{
+    id = new_id;
+}
+
 ARM_TLM_EXPORT Resp Payload::get_resp() const
 {
     return payload_data->resp;

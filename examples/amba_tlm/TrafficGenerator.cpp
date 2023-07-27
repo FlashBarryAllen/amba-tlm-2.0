@@ -216,11 +216,14 @@ TrafficGenerator::TrafficGenerator(sc_core::sc_module_name name) :
     dont_initialize();
 }
 
-void TrafficGenerator::add_payload(int id, Command command, uint64_t address, Size size,
+void TrafficGenerator::add_payload(uint32_t src_id, uint32_t dst_id, Command command, uint64_t address, Size size,
     uint8_t len, Burst burst)
 {
     Payload* payload = Payload::new_payload(command, address, size, len, burst);
-    payload->set_id(id);
+    
+    payload->set_id(src_id, dst_id);
+
+    std::cout << "id: " << payload->get_id() << std::endl;
 
     payload->cache = CacheBitEnum() | CACHE_AW_B;
 

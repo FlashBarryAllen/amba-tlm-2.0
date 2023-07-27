@@ -606,9 +606,9 @@ ARM_TLM_EXPORT uint32_t Payload::get_id() const
     return id;
 }
 
-ARM_TLM_EXPORT void Payload::set_id(uint32_t new_id)
+ARM_TLM_EXPORT void Payload::set_id(uint32_t src_id, uint32_t dst_id)
 {
-    id = new_id;
+    id |= (src_id << 0x1c) | (dst_id << 0x18);
 }
 
 ARM_TLM_EXPORT Resp Payload::get_resp() const

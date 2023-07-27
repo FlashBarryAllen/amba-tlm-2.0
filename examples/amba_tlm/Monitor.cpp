@@ -13,13 +13,15 @@ using namespace ARM::AXI4;
 tlm_sync_enum Monitor::nb_transport_fw(Payload& payload, Phase& phase)
 {
     auto id = payload.get_id();
-    m_id_map[&payload] = id;
-    std::cout << "id : " << id << std::endl;
+    auto src_id = id >> 0x1c;
+    auto dst_id = (id >> 0x18) & 0xf;
 
-    auto target_id = payload.get_address() & 0x1;
-    std::cout << "target_id : " << target_id << std::endl;
+    m_id_map[&payload] = src_id;
     Phase prev_phase = phase;
-    tlm_sync_enum reply = (*master[target_id]).nb_transport_fw(payload, phase);
+
+    std::cout << "[fw] from: " << src_id << " -> to: " << dst_id << std::endl;
+    
+    tlm_sync_enum reply = (*master[dst_id]).nb_transport_fw(payload, phase);
 
     print_payload(payload, prev_phase, reply, phase);
 
@@ -29,7 +31,12 @@ tlm_sync_enum Monitor::nb_transport_fw(Payload& payload, Phase& phase)
 tlm_sync_enum Monitor::nb_transport_bw(Payload& payload, Phase& phase)
 {
     Phase prev_phase = phase;
-    std::cout << "m_id_map : " << m_id_map[&payload] <<  std::endl;
+    auto id = payload.get_id();
+    auto src_id = id >> 0x1c;
+    auto dst_id = (id >> 0x18) & 0xf;
+
+    std::cout << "[bw] from: " << dst_id << " -> to: " << src_id << std::endl;
+
     tlm_sync_enum reply = (*slave[m_id_map[&payload]]).nb_transport_bw(payload, phase);
 
     print_payload(payload, prev_phase, reply, phase);

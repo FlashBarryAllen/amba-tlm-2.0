@@ -249,26 +249,43 @@ void Monitor::print_payload(Payload& payload, Phase phase,
     cout << stream.str();
 }
 
-Monitor::Monitor(sc_module_name name, unsigned port_width) :
+Monitor::Monitor(sc_module_name name, int slave_num_, int master_num_, unsigned port_width) :
     sc_module(name),
-    beat_data(new uint8_t[port_width >> 3])
+    beat_data(new uint8_t[port_width >> 3]),
+    slave_num(slave_num_),
+    master_num(master_num_)
 {
-    slave[0] = new ARM::AXI4::SimpleSlaveSocket<Monitor>("slave", *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
+    
+    for (auto i = 0; i < slave_num; i++) {
+        char txt[20];
+        sprintf(txt, "slave_%d", i);
+        auto skt = new ARM::AXI4::SimpleSlaveSocket<Monitor>(txt, *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
         port_width);
-    slave[1] = new ARM::AXI4::SimpleSlaveSocket<Monitor>("slave1", *this, &Monitor::nb_transport_fw, ARM::TLM::PROTOCOL_ACE,
+        slave.push_back(skt);
+    }
+
+    for (auto i = 0; i < master_num; i++) {
+        char txt[20];
+        sprintf(txt, "master_%d", i);
+        auto skt = new ARM::AXI4::SimpleMasterSocket<Monitor>(txt, *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
         port_width);
-    master[0] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
-        port_width);
-    master[1] = new ARM::AXI4::SimpleMasterSocket<Monitor>("master1", *this, &Monitor::nb_transport_bw, ARM::TLM::PROTOCOL_ACE,
-        port_width);
+        master.push_back(skt);
+    }
 }
 
 Monitor::~Monitor()
 {
     delete[] beat_data;
-    delete slave[0];
-    delete master[0];
-    delete slave[1];
-    delete master[1];
+    
+    auto slave_length = slave.size();
+    auto master_length = master.size();
+
+    for (auto i = slave_length - 1; i >=0; i--)  {
+        delete slave[i];
+    }
+
+    for (auto i = master_length - 1; i >=0; i--)  {
+        delete master[i];
+    }
 }
 

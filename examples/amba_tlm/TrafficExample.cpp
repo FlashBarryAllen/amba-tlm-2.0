@@ -53,7 +53,7 @@ int sc_main(int argc, char* argv[])
     TrafficGenerator tg("tg");
     TrafficGenerator tg1("tg1");
 
-    Monitor mon("mon");
+    Monitor mon("mon", 2, 2);
     Memory mem("mem");
     Memory mem1("mem1");
 

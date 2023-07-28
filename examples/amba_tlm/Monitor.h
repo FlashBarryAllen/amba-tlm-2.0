@@ -25,13 +25,16 @@ protected:
     void print_payload(ARM::AXI4::Payload& payload,
         ARM::AXI4::Phase sent_phase, tlm::tlm_sync_enum reply,
         ARM::AXI4::Phase reply_phase);
+    
+    int slave_num;
+    int master_num;
 
 public:
-    Monitor(sc_core::sc_module_name name, unsigned port_width = 128);
+    Monitor(sc_core::sc_module_name name, int slave_num_, int master_num_, unsigned port_width = 128);
     ~Monitor();
 
-    std::array<ARM::AXI4::SimpleSlaveSocket<Monitor>*, 2> slave;
-    std::array<ARM::AXI4::SimpleMasterSocket<Monitor>*, 2> master;
+    std::vector<ARM::AXI4::SimpleSlaveSocket<Monitor>*> slave;
+    std::vector<ARM::AXI4::SimpleMasterSocket<Monitor>*> master;
 };
 
 #endif // ARM_MONITOR_H
